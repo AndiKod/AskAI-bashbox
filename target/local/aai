@@ -1,0 +1,341 @@
+#!/usr/bin/env bash
+readonly PKG_NAME="CLI Project"
+readonly PKG_VERS="0.1.0"
+readonly PKG_REPO="github.com/user/cli-project"
+readonly ROOT="/home/andikod/sherpa/boxes/aai"
+readonly SDD="$HOME/.sherpa" # Sherpa Dot-Dir
+readonly SCD="$HOME/sherpa"  # Sherpa Custom-Dir
+readonly EDITOR="vim"        # Default Editor
+readonly BIN="${SDD}/bin"    # Default Editor
+set -eo pipefail
+use() {
+local file="$1" # ex std/fmt
+local dotdir="${SDD}/lib"
+local custom="${SCD}/lib"
+if [ -f "${custom}/${file}.sh" ]; then
+source "${custom}/${file}.sh"
+elif [ -f "${dotdir}/${file}.sh" ]; then
+source "${dotdir}/${file}.sh"
+fi
+}
+import() {
+local url=""
+local repo=""
+local branch="master"
+local file=""
+while getopts "u:r:b:f:" opt; do
+case $opt in
+u) url=$OPTARG ;;
+r) repo=$OPTARG ;;
+b) branch=$OPTARG ;;
+f) file=$OPTARG ;;
+*) echo "Invalid flag" ;;
+esac
+done
+if [[ $url != "" ]]; then
+. <(curl -s "$url")
+elif [[ $repo != "" ]]; then
+local fullUrl="https://raw.githubusercontent.com/${repo}/refs/heads/${branch}/${file}"
+. <(curl -s "$fullUrl")
+else
+echo "Opps. Something went wrong."
+exit 1
+fi
+}
+confirm() {
+br
+read -r -p "$1 (y/n): " answer
+if [[ ! $answer =~ ^[Yy]$ ]]; then
+br
+p "${btnWarning} Canceled ${x} Ok, got it."
+br
+exit 1
+fi
+}
+add_yaml_parent() {
+local key="$1"
+local file="$2"
+yq eval ".$key = {}" -i "$file"
+}
+add_yaml_item() {
+local key="$1"
+local value="$2"
+local file="$3"
+yq eval ".$key = \"$value\"" -i "$file"
+}
+get_yaml_item() {
+local key="$1"
+local file="$2"
+yq e ".$key" "$file"
+}
+update_yaml_item() {
+local key="$1"
+local newValue="$2"
+local file="$3"
+yq -i ".$key = \"$newValue\"" "$file"
+}
+remove_yaml_item() {
+local key="$1"
+local file="$2"
+yq -i "del(.$key)" "$file"
+}
+print_yaml_items() {
+local file="$1"
+yq eval "." "$file"
+}
+package() {
+local key="$1"
+get_yaml_item "package.${key}" "${ROOT}/Sherpa.yaml"
+}
+add_config() {
+local key="$1"
+local value="$2"
+local file="$3"
+yq -i ".$key = \"$value\"" "$file"
+}
+add_conf() {
+local key="$1"
+local value="$2"
+yq -i ".$key = \"$value\"" ./Sherpa.yaml
+}
+get_config() {
+local key="$1"
+yq e ".$key" Sherpa.yaml
+}
+get_conf() {
+local key="$1"
+local file="$2"
+yq e ".$key" "$file"
+}
+update_config() {
+local key="$1"
+local newValue="$2"
+yq -i ".$key = \"$newValue\"" ./Sherpa.yaml
+}
+remove_config() {
+local key="$1"
+yq -i "del(.$key)" ./Sherpa.yaml
+}
+strong="\033[1m"   # Make it Bold
+disabled="\033[2m" # Make it Dimmed
+em="\033[3m"       # Make it Italic
+u="\033[4m"        # Make it Underlined
+end="\033[0m" # Make it </end>
+x="\033[0m"   # Make it </end> but shorter
+txtBlack="\033[30m"   # .text-red
+txtRed="\033[31m"     # .text-red
+txtGreen="\033[32m"   # .text-green
+txtYellow="\033[33m"  # .text-yellow
+txtBlue="\033[34m"    # .text-blue
+txtMagenta="\033[35m" # .text-magenta
+txtCyan="\033[36m"    # .text-cyan
+txtWhite="\033[37m"   # .text-white
+bgBlack="\033[40m"     # .bg-black
+bgRed="\033[41m"       # .bg-red
+bgGreen="\033[42m"     # .bg-green
+bgYellow="\033[43m"    # .bg-yellow
+bgBlue="\033[44m"      # .bg-blue
+bgMagenta="\033[45m"   # .bg-magenta
+bgCyan="\033[46m"      # .bg-cyan
+bgLightGray="\033[37m" # .bg-lightGray
+icoLeaf="\ue22f"
+primaryColor="Green"
+case $primaryColor in
+Black)
+txtPrimary=${txtBlack}
+;;
+Red)
+txtPrimary=${txtRed}
+;;
+Green)
+txtPrimary=${txtGreen}
+;;
+Yellow)
+txtPrimary=${txtYellow}
+;;
+Blue)
+txtPrimary=${txtBlue}
+;;
+Magenta)
+txtPrimary=${txtMagenta}
+;;
+Cyan)
+txtPrimary=${txtCyan}
+;;
+White)
+txtPrimary=${txtWhite}
+;;
+*)
+txtPrimary=""
+;;
+esac
+btnSuccess="${bgGreen}${txtBlack}"
+link="${u}${em}${txtBlue}"
+text-center() {
+local -i TERM_COLS
+local -i str_len
+local -i filler_len
+local filler
+TERM_COLS=$(tput cols)
+str_len=${#1}
+filler_len=$(((TERM_COLS - str_len) / 2))
+filler=$(printf '%*s' "$filler_len" '' | tr ' ' ' ')
+printf "%s%s\n" "$filler" "$1"
+}
+fetch() {
+local endpoint="$1"
+local response
+response=$(curl -s -X GET "$endpoint")
+echo "$response"
+}
+h1() {
+printf "\n%b%b%s%b\n" "$strong" "$txtPrimary" "$1" "$x"
+}
+h2() {
+printf "%b%s%b\n" "$txtPrimary" "$1" "$x"
+}
+h3() {
+printf "%b%b%s%b\n" "$txtPrimary" "$em" "$1" "$x"
+}
+p() {
+echo -e " $1"
+}
+span() {
+printf "%s" "$1"
+}
+br() {
+printf "\n"
+}
+em() {
+printf "%b%s%b" "$em" "$1" "$x"
+}
+strong() {
+printf "%b%s%b" "$strong" "$1" "$x"
+}
+hr() {
+[[ $# == 0 ]] && return 1
+declare -i TERM_COLS
+declare -i str_len
+TERM_COLS="$(tput cols)"
+str_len="((${#1} + 2))"
+[[ $str_len -ge $TERM_COLS ]] && {
+echo "$1"
+return 0
+}
+declare -i filler_len="$(((TERM_COLS - str_len) / 2))"
+[[ $# -ge 2 ]] && ch="${2:0:1}" || ch=" "
+filler=""
+for ((i = 0; i < filler_len; i++)); do
+filler="${filler}${ch}"
+done
+printf "%s %s %s" "$filler" "$1" "$filler"
+[[ $(((TERM_COLS - str_len) % 2)) -ne 0 ]] && printf "%s" "${ch}"
+printf "\n"
+return 0
+}
+a() {
+echo -e "${u}${em}${txtBlue}$1${x}"
+}
+flex-between() {
+left_text=$1
+right_text=$2
+width=$(tput cols)
+right_position=$((width - ${#right_text}))
+printf "%s%*s\n" "$left_text" $((right_position - ${#left_text})) ""
+printf "%s\n" "$right_text"
+}
+modify_value() {
+local key="$1"
+local new_value="$2"
+local filename="$3"
+sed -i -E "s/^(${key}\s*=\s*).*/\1${new_value}/" "$filename"
+}
+color="" # String
+usage() {
+echo "Usage: $0 [-h] [-v] [-V] [-q] [-c] <command>"
+echo "Options:"
+echo "  -h | --help       Display the usage message"
+echo "  -v | --version    Display script Version."
+echo "  -c                Custom color via -c color."
+echo "  -V | --verbose    Enable Verbose mode."
+echo "  -q | --quiet      Continue force execution."
+}
+while getopts ":hvc:Vq-:" opt; do
+case $opt in
+h)
+usage
+exit 0
+;;
+v)
+printf "%s v%s\n" "$(get_conf "name")" "$VERSION"
+[[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
+exit 0
+;;
+c)
+color=${OPTARG}
+exit 0
+;;
+V)
+verbose=1
+exit 0
+;;
+q)
+quiet=1
+exit 0
+;;
+-)
+case "${OPTARG}" in
+help)
+usage
+exit 0
+;;
+version)
+printf "%s v%s\n" "$SCRIPT_NAME" "$VERSION"
+[[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
+exit 0
+;;
+verbose)
+verbose=1
+exit 0
+;;
+quiet)
+usage
+exit 0
+;;
+*)
+echo "Unknown option --${OPTARG}" >&2
+exit 1
+;;
+esac
+;;
+\?)
+echo "Invalid option: -$OPTARG" >&2
+exit 1
+;;
+:)
+echo "Option -$OPTARG requires an argument." >&2
+exit 1
+;;
+esac
+done
+shift $((OPTIND - 1))
+use "std/fmt"
+main() {
+h1 " --= Ask AI =--"
+hr "Sh:erpa" "-"
+br
+h1 "Search something with Perplexity AI"
+br
+p "Usage: ${em}${txtBlue}aai${x} \"My question here\"${x}"
+br
+}
+if [[ "$#" == 0 ]]; then
+main
+exit 0
+fi
+if [[ "$#" == 1 ]]; then
+readonly BROWSER="/mnt/e/Programmes/Vivaldi/Application/vivaldi.exe"
+SEARCH_QUERY=$(echo "$1" | jq -sRr @uri)
+URL="https://www.perplexity.ai/search?q=${SEARCH_QUERY}"
+"$BROWSER" "$URL"
+fi

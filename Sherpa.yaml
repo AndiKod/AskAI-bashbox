@@ -1,0 +1,7 @@
+package:
+  name: aai
+  version: 0.1.0
+  repo: github.com/user/repo
+  executable: aai
+  root: /home/andikod/sherpa/boxes/aai
+  type: localBin
