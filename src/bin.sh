@@ -31,6 +31,9 @@ fi
 
 # Updating the default Browser
 if [[ "$1" == "setBrowser" ]]; then
+  # Data file
+  conf="${ROOT}/data/conf.yaml"
+  # The value to be set
   my_browser="$2"
 
   # Execute and Feedback
@@ -48,6 +51,9 @@ fi
 
 # Route for the actual search
 if [[ "$#" == 1 ]]; then
+
+  # Data file
+  conf="${ROOT}/data/conf.yaml"
   # Browser
   BROWSER="$(get_yaml_item "browser" "$conf")"
 
