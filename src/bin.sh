@@ -49,7 +49,7 @@ fi
 # Route for the actual search
 if [[ "$#" == 1 ]]; then
   # Browser
-  readonly BROWSER="$(get_yaml_item "browser" "$conf")"
+  BROWSER="$(get_yaml_item "browser" "$conf")"
 
   # Encode the search query for URL
   SEARCH_QUERY=$(echo "$1" | jq -sRr @uri)
