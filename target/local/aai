@@ -2,7 +2,7 @@
 readonly PKG_NAME="CLI Project"
 readonly PKG_VERS="0.1.0"
 readonly PKG_REPO="github.com/user/cli-project"
-readonly ROOT="/home/andikod/sherpa/boxes/aai"
+readonly ROOT="/home/andikod/sherpa/bbr/bin/AskAI"
 readonly SDD="$HOME/.sherpa" # Sherpa Dot-Dir
 readonly SCD="$HOME/sherpa"  # Sherpa Custom-Dir
 readonly EDITOR="vim"        # Default Editor
@@ -321,17 +321,36 @@ done
 shift $((OPTIND - 1))
 use "std/fmt"
 main() {
+conf="${ROOT}/data/conf.yaml"
 h1 " --= Ask AI =--"
 hr "Sh:erpa" "-"
+p "Search with Perplexity AI"
 br
-h1 "Search something with Perplexity AI"
+h2 "Set your Browser"
+p "Binary on path: ${em}${txtBlue}aai setBrowser${x} firefox${x}"
+p "Path if on WSL: ${em}${txtBlue}aai setBrowser${x} /path/to/app.exe${x}"
+em "Actual browser: $(get_yaml_item "browser" "$conf")"
 br
+br
+h2 "Search something"
 p "Usage: ${em}${txtBlue}aai${x} \"My question here\"${x}"
 br
 }
 if [[ "$#" == 0 ]]; then
 main
 exit 0
+fi
+if [[ "$1" == "setBrowser" ]]; then
+my_browser="$2"
+if update_yaml_item "browser" "$my_browser" "$conf"; then
+br
+p "${btnSuccess} Done! ${x} Browser: $(get_yaml_item "browser" "$conf")"
+br
+else
+br
+p "${btnWarning} Oops! ${x} Something went wrong."
+br
+fi
 fi
 if [[ "$#" == 1 ]]; then
 readonly BROWSER="/mnt/e/Programmes/Vivaldi/Application/vivaldi.exe"
