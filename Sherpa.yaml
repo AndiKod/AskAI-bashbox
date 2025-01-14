@@ -1,7 +1,10 @@
 package:
   name: aai
+  description: "Ask PerplexityAI something, from the Terminal"
+  author: Andrei Curelaru - AndiKod
+  licence: MIT
   version: 0.2.0
   repo: github.com/AndiKod/aai-bashbox
   executable: aai
   root: /home/andikod/sherpa/boxes/aai
-  type: localBin
+  type: BashBox

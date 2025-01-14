@@ -6,7 +6,7 @@ Note: A BashBox is package like a Cargo Crate, but for Bash. It can be installed
 
 ## Prerequisites
 
-[Sh:erpa](https://sherpa-basecamp.netlify.app/ need to be installed, in the same way you need Cargo to install & use crates.
+[Sh:erpa](https://sherpa-basecamp.netlify.app/) need to be installed, in the same way you need Cargo to install & use crates.
 
 Be sure you have bash, curl & gawk installed, then run:
 
@@ -14,7 +14,7 @@ Be sure you have bash, curl & gawk installed, then run:
 curl -sSL https://raw.githubusercontent.com/SherpaBasecamp/sherpa/refs/heads/master/tools/install.sh | bash
 ```
 
-Check [the QuickInstall](https://sherpa-basecamp.netlify.app/install/install/)) page in the documantation.
+Check [the QuickInstall](https://sherpa-basecamp.netlify.app/install/install/) page in the documantation.
 
 ## Install AskAI
 
@@ -24,19 +24,17 @@ Check [the QuickInstall](https://sherpa-basecamp.netlify.app/install/install/)) 
 sh install -n "AskAI" -u "https://github.com/AndiKod/AskAI-bashbox.git"
 ```
 
-The repo will be cloned, the executable built from the src/ files and be available to be invoked as `aai`.
-
+The repo will be cloned, the executable built from the src/ files and be available as `aai`.
 
 2. Set your prefered Browser
 
-Basic usage:
+Usage:
 
 ```bash
 aai setBrowser <binary or fullPath>
 ```
 
 This will update the value of the `browser` field in `data/conf.yaml`.
-
 
 3. Well, ...AskAI something
 
@@ -45,7 +43,6 @@ aai "Can you tell me more about ..."
 ```
 
 This will open the configured Browser, populate the search term in Perlexity and run it. If the Window is already opened, or minimised, the search will normally open in a new tab.
-
 
 ## Browser options
 
