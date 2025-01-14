@@ -12,13 +12,16 @@ main() {
   p "Search with Perplexity AI"
   br
   h2 "Set your Browser"
-  p "Binary on path: ${em}${txtBlue}aai setBrowser${x} firefox${x}"
-  p "Path if on WSL: ${em}${txtBlue}aai setBrowser${x} /path/to/app.exe${x}"
+  p "Usage: ${em}${txtBlue}aai setBrowser${x} <app or path>${x}"
   em "Actual browser: $(get_yaml_item "browser" "$conf")"
   br
   br
   h2 "Search something"
   p "Usage: ${em}${txtBlue}aai${x} \"My question here\"${x}"
+  br
+  h3 "Options"
+  p "Check the README.md page of the BashBox for some details:"
+  p "${link}https://github.com/AndiKod/aai-bashbox${x}"
   br
 
 }
@@ -61,8 +64,17 @@ if [[ "$#" == 1 ]]; then
   SEARCH_QUERY=$(echo "$1" | jq -sRr @uri)
 
   # Construct the full URL
-  URL="https://www.perplexity.ai/search?q=${SEARCH_QUERY}"
+  QUERY="https://www.perplexity.ai/search?q=${SEARCH_QUERY}"
 
   # Launch the default web browser
-  "$BROWSER" "$URL"
+  if "$BROWSER" "$QUERY"; then
+    br
+    p "${btnSuccess} Done! ${x} Check the browser."
+    br
+  else
+    br
+    p "${btnWarning} Oops! ${x} Set a browser."
+    br
+  fi
+
 fi

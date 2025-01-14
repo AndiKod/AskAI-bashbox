@@ -1,7 +1,7 @@
 package:
   name: aai
-  version: 0.1.0
-  repo: github.com/user/repo
+  version: 0.2.0
+  repo: github.com/AndiKod/aai-bashbox
   executable: aai
   root: /home/andikod/sherpa/boxes/aai
   type: localBin
