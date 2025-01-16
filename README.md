@@ -26,7 +26,7 @@ sh install -n "AskAI" -u "https://github.com/AndiKod/AskAI-bashbox.git"
 
 The repo will be cloned, the executable built from the src/ files and be available as `aai`.
 
-2. Set your prefered Browser
+2. Set your prefered Browser (if needed)
 
 Usage:
 
@@ -35,6 +35,7 @@ aai setBrowser <binary or fullPath>
 ```
 
 This will update the value of the `browser` field in `data/conf.yaml`.
+The default value is `xdg-open` trying to open the system default browser.
 
 3. Well, ...AskAI something
 
