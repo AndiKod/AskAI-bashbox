@@ -3,8 +3,8 @@ package:
   description: "Ask PerplexityAI something, from the Terminal"
   author: Andrei Curelaru - AndiKod
   licence: MIT
-  version: 0.2.0
-  repo: github.com/AndiKod/aai-bashbox
+  version: 0.2.1
+  repo: github.com/AndiKod/AskAI-bashbox
   executable: aai
   root: /home/andikod/sherpa/boxes/aai
   type: BashBox

@@ -1,30 +1,39 @@
-# @file My Sh:erpa package
+# @file AskAI bashbox
 
 # ------------------------------- #
 #   Options -flags with GetOpts   #
 # ------------------------------- #
 
-# For the -c demo flag
-#+asigning a value via myScript -c purple
-color="" # String
 
 # Function to display help text
 usage() {
-  echo "Usage: $0 [-h] [-v] [-V] [-q] [-c] <command>"
-  echo "Options:"
-  echo "  -h | --help       Display the usage message"
-  echo "  -v | --version    Display script Version."
-  echo "  -c                Custom color via -c color."
-  echo "  -V | --verbose    Enable Verbose mode."
-  echo "  -q | --quiet      Continue force execution."
+
+  h1 " $(package "name")"
+  hr "BashBox" "-"
+  if [[ -n "$(package "description")" ]]; then
+    p "$(package "description")"
+    br
+  fi
+  h2 "Usage"
+  p "$(package "executable") [options] <command> <arguments>"
+  br
+  h2 "Options"
+  p "  -h | --help       Display the usage message"
+  p "  -v | --version    Display script Version."
+  br
+  h2 "Commands"
+  p "* $(package "executable") : The home screen"
+  p "* $(package "executable") setBrowser <app or path> : Set the browser to use"
+  p "* $(package "executable") <query> : Search with Perplexity AI"
+  if [[ -n "$(package "repo")" ]]; then
+    br
+    p "Repo: ${link}$(package "repo")${x}"
+    br
+  fi
+
 }
 
-# Using getopts for the portability
-#+as it is a shell builtin instead of
-#+an external program like "getopt".
-while getopts ":hvc:Vq-:" opt; do
-  # Avoid placing an argument expencting option
-  #+before the "-:" mark, like ":hvVqc:-:"
+while getopts ":hvVq-:" opt; do
   case $opt in
   h)
     # Display the help/usage text from above
@@ -33,16 +42,9 @@ while getopts ":hvc:Vq-:" opt; do
     ;;
   v)
     # -v short flag for version.
-    printf "%s v%s\n" "$(get_conf "name")" "$VERSION"
-    [[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
-    exit 0
-    ;;
-  c)
-    # Custom flag -c expecting a color name as argument,
-    #+that will be placed into the color variable.
-    # Usage: myScript -c purple
-    # Inside the script: echo "True, $color is a great one."
-    color=${OPTARG}
+    br
+    p "${strong}${txtPrimary}$(package "name")${x}: ${em}v$(package "version")${x}"
+    br
     exit 0
     ;;
   V)
@@ -68,8 +70,9 @@ while getopts ":hvc:Vq-:" opt; do
       ;;
     # --version
     version)
-      printf "%s v%s\n" "$SCRIPT_NAME" "$VERSION"
-      [[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
+      br
+      p "${strong}${txtPrimary}$(package "name")${x}: ${em}v$(package "version")${x}"
+      br
       exit 0
       ;;
     # --verbose

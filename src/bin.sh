@@ -20,8 +20,8 @@ main() {
   p "Usage: ${em}${txtBlue}aai${x} \"My question here\"${x}"
   br
   h3 "Options"
-  p "Check the README.md page of the BashBox for some details:"
-  p "${link}https://github.com/AndiKod/aai-bashbox${x}"
+  p "Check the README.md page of the BashBox:"
+  p "${link}https://github.com/AndiKod/AskAI-bashbox${x}"
   br
 
 }
@@ -55,10 +55,8 @@ fi
 # Route for the actual search
 if [[ "$#" == 1 ]]; then
 
-  # Data file
-  conf="${ROOT}/data/conf.yaml"
   # Browser
-  BROWSER="$(get_yaml_item "browser" "$conf")"
+  BROWSER="$(dataGet "conf" "browser")"
 
   # Encode the search query for URL
   SEARCH_QUERY=$(echo "$1" | jq -sRr @uri)
@@ -66,10 +64,12 @@ if [[ "$#" == 1 ]]; then
   # Construct the full URL
   QUERY="https://www.perplexity.ai/search?q=${SEARCH_QUERY}"
 
+  
   # Launch the default web browser
-  if "$BROWSER" "$QUERY"; then
+  if "$BROWSER" "$QUERY" > /dev/null 2>&1; then
     br
     p "${btnSuccess} Done! ${x} Check the browser."
+    p "Eventually press ${em}Alt+F4${x} to close it."
     br
   else
     br

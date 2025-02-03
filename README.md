@@ -1,20 +1,20 @@
 # AskAI
 
-This little BashBox lets you search with Perplexity AI from your Terminal, by launching the web version in your prefered browser.
+This simple BashBox lets you search with Perplexity AI from your Terminal, by launching the web version in your prefered browser.
 
-Note: A BashBox is package like a Cargo Crate, but for Bash. It can be installed, updated or uninstalled from the command-line, and bring new functionalities or tools right into the terminal ...on Linux, MacOS or WSL2.
+_Note: A BashBox is package like a Cargo Crate, but for Bash. It can be installed, updated or uninstalled from the command-line, and bring new functionalities or tools right into the terminal ...on Linux, MacOS or WSL2._
 
 ## Prerequisites
 
-[Sh:erpa](https://sherpa-basecamp.netlify.app/) need to be installed, in the same way you need Cargo to install & use crates.
+[Sh:erpa](https://sherpa-cli.netlify.app/) need to be installed, in the same way we need Cargo to install & use crates.
 
 Be sure you have bash, curl & gawk installed, then run:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/SherpaBasecamp/sherpa/refs/heads/master/tools/install.sh | bash
+bash -c "$(curl -sLo- https://sherpa-cli.netlify.app/install.sh)"
 ```
 
-Check [the QuickInstall](https://sherpa-basecamp.netlify.app/install/install/) page in the documantation.
+Check [the QuickInstall](https://sherpa-cli.netlify.app/install/install/) page in the documantation.
 
 ## Install AskAI
 
@@ -56,6 +56,8 @@ Try typing something like `firefox https://example.com`. If it opens, then you c
 ### Full Path to the .exe
 
 On WSL Windows, as your drive E is identified as `/mnt/e`, you can point directly to the .exe with `/mnt/e/.../vivaldi.exe` and use that with `aai setBrowser /mnt/.../vivaldi.exe`.
+
+Alternatively, you can set it manually in the `data/conf.yaml` file.
 
 Give a try to what you have installed, test it in a terminal window with some ranom url to see what works. Can be `/mnt/c/.../brave.exe https://some.com` or whatever else can handle urls.
 

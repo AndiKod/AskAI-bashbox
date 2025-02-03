@@ -52,6 +52,11 @@ br
 exit 1
 fi
 }
+is_key() {
+local key=$1
+local file=$2
+yq e "has(\"$key\")" "$file" | grep -q "true"
+}
 add_yaml_parent() {
 local key="$1"
 local file="$2"
@@ -87,41 +92,51 @@ package() {
 local key="$1"
 get_yaml_item "package.${key}" "${ROOT}/Sherpa.yaml"
 }
-add_config() {
+env() {
 local key="$1"
-local value="$2"
-local file="$3"
-yq -i ".$key = \"$value\"" "$file"
+local env_file="${SCD}/env.yaml"
+if [ -z "$key" ]; then
+p "${btnWarning} MissingKey! ${x} Usage: ${em}env \"<key>\"${x}"
+exit 1
+fi
+if [[ -n "$key" && ! $(is_key "$key" "${env_file}") ]]; then
+p "${btnWarning} Oops! ${x} $key is not a valid key in ${env_file}"
+exit 1
+fi
+get_yaml_item "${key}" "${env_file}"
 }
-add_conf() {
-local key="$1"
-local value="$2"
-yq -i ".$key = \"$value\"" ./Sherpa.yaml
+dataGet() {
+local file="$1"
+local key="$2"
+get_yaml_item "${key}" "${ROOT}/data/${file}.yaml"
 }
-get_config() {
-local key="$1"
-yq e ".$key" Sherpa.yaml
+dataAdd() {
+local file="$1"
+local key="$2"
+local value="$3"
+add_yaml_item "${key}" "${value}" "${ROOT}/data/${file}.yaml"
 }
-get_conf() {
-local key="$1"
-local file="$2"
-yq e ".$key" "$file"
+dataAddParent() {
+local file="$1"
+local key="$2"
+get_yaml_parent "${key}" "${ROOT}/data/${file}.yaml"
 }
-update_config() {
-local key="$1"
-local newValue="$2"
-yq -i ".$key = \"$newValue\"" ./Sherpa.yaml
+dataUpdate() {
+local file="$1"
+local key="$2"
+local value="$3"
+add_yaml_item "${key}" "${value}" "${ROOT}/data/${file}.yaml"
 }
-remove_config() {
-local key="$1"
-yq -i "del(.$key)" ./Sherpa.yaml
+dataDelete() {
+local file="$1"
+local key="$2"
+remove_yaml_item "${key}" "${ROOT}/data/${file}.yaml"
 }
 strong="\033[1m"   # Make it Bold
 disabled="\033[2m" # Make it Dimmed
 em="\033[3m"       # Make it Italic
 u="\033[4m"        # Make it Underlined
-end="\033[0m" # Make it </end>
-x="\033[0m"   # Make it </end> but shorter
+x="\033[0m" # Make it </end> but shorter
 txtBlack="\033[30m"   # .text-red
 txtRed="\033[31m"     # .text-red
 txtGreen="\033[32m"   # .text-green
@@ -139,7 +154,26 @@ bgMagenta="\033[45m"   # .bg-magenta
 bgCyan="\033[46m"      # .bg-cyan
 bgLightGray="\033[37m" # .bg-lightGray
 icoLeaf="\ue22f"
+icoDocker="\uf21f"
+is_color() {
+local color="$1"
+local valid_colors=("Black" "Red" "Green" "Yellow" "Blue" "Magenta" "Cyan" "White")
+for valid_color in "${valid_colors[@]}"; do
+if [ "$color" = "$valid_color" ]; then
+return 0
+fi
+done
+return 1
+}
+scdYaml="${SCD}/Sherpa.yaml"
+customColor="$(get_yaml_item "primaryColor" "$scdYaml")"
+if is_color "$mainColor"; then
+primaryColor="$mainColor"
+elif is_color "$customColor"; then
+primaryColor="$customColor"
+else
 primaryColor="Green"
+fi
 case $primaryColor in
 Black)
 txtPrimary=${txtBlack}
@@ -169,8 +203,10 @@ txtPrimary=${txtWhite}
 txtPrimary=""
 ;;
 esac
-btnSuccess="${bgGreen}${txtBlack}"
-link="${u}${em}${txtBlue}"
+export btnSuccess="${bgGreen}${txtBlack}"
+export btnWarning="${bgYellow}${txtBlack}"
+export btnDanger="${bgRed}${txtWhite}"
+export link="${u}${em}${txtBlue}"
 text-center() {
 local -i TERM_COLS
 local -i str_len
@@ -250,29 +286,40 @@ local new_value="$2"
 local filename="$3"
 sed -i -E "s/^(${key}\s*=\s*).*/\1${new_value}/" "$filename"
 }
-color="" # String
 usage() {
-echo "Usage: $0 [-h] [-v] [-V] [-q] [-c] <command>"
-echo "Options:"
-echo "  -h | --help       Display the usage message"
-echo "  -v | --version    Display script Version."
-echo "  -c                Custom color via -c color."
-echo "  -V | --verbose    Enable Verbose mode."
-echo "  -q | --quiet      Continue force execution."
+h1 " $(package "name")"
+hr "BashBox" "-"
+if [[ -n "$(package "description")" ]]; then
+p "$(package "description")"
+br
+fi
+h2 "Usage"
+p "$(package "executable") [options] <command> <arguments>"
+br
+h2 "Options"
+p "  -h | --help       Display the usage message"
+p "  -v | --version    Display script Version."
+br
+h2 "Commands"
+p "* $(package "executable") : The home screen"
+p "* $(package "executable") setBrowser <app or path> : Set the browser to use"
+p "* $(package "executable") <query> : Search with Perplexity AI"
+if [[ -n "$(package "repo")" ]]; then
+br
+p "Repo: ${link}$(package "repo")${x}"
+br
+fi
 }
-while getopts ":hvc:Vq-:" opt; do
+while getopts ":hvVq-:" opt; do
 case $opt in
 h)
 usage
 exit 0
 ;;
 v)
-printf "%s v%s\n" "$(get_conf "name")" "$VERSION"
-[[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
-exit 0
-;;
-c)
-color=${OPTARG}
+br
+p "${strong}${txtPrimary}$(package "name")${x}: ${em}v$(package "version")${x}"
+br
 exit 0
 ;;
 V)
@@ -290,8 +337,9 @@ usage
 exit 0
 ;;
 version)
-printf "%s v%s\n" "$SCRIPT_NAME" "$VERSION"
-[[ -n "$REPO" ]] && printf "Repo: %s\n" "$REPO"
+br
+p "${strong}${txtPrimary}$(package "name")${x}: ${em}v$(package "version")${x}"
+br
 exit 0
 ;;
 verbose)
@@ -335,8 +383,8 @@ h2 "Search something"
 p "Usage: ${em}${txtBlue}aai${x} \"My question here\"${x}"
 br
 h3 "Options"
-p "Check the README.md page of the BashBox for some details:"
-p "${link}https://github.com/AndiKod/aai-bashbox${x}"
+p "Check the README.md page of the BashBox:"
+p "${link}https://github.com/AndiKod/AskAI-bashbox${x}"
 br
 }
 if [[ "$#" == 0 ]]; then
@@ -357,13 +405,13 @@ br
 fi
 fi
 if [[ "$#" == 1 ]]; then
-conf="${ROOT}/data/conf.yaml"
-BROWSER="$(get_yaml_item "browser" "$conf")"
+BROWSER="$(dataGet "conf" "browser")"
 SEARCH_QUERY=$(echo "$1" | jq -sRr @uri)
 QUERY="https://www.perplexity.ai/search?q=${SEARCH_QUERY}"
-if "$BROWSER" "$QUERY"; then
+if "$BROWSER" "$QUERY" > /dev/null 2>&1; then
 br
 p "${btnSuccess} Done! ${x} Check the browser."
+p "Eventually press ${em}Alt+F4${x} to close it."
 br
 else
 br
