@@ -21,7 +21,7 @@ Check [the QuickInstall](https://sherpa-cli.netlify.app/install/install/) page i
 1. Run the Install command
 
 ```bash
-sh install -n "AskAI" -u "https://github.com/AndiKod/AskAI-bashbox.git"
+s install -n "AskAI" -u "https://github.com/AndiKod/AskAI-bashbox.git"
 ```
 
 The repo will be cloned, the executable built from the src/ files and be available as `aai`.
